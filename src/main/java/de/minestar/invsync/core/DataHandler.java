@@ -14,8 +14,14 @@ import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
 
 public class DataHandler {
 
+    public static DataHandler INSTANCE;
+
     /** Reference to the logger. */
     private static final Logger logger = Logger.getLogger("Minecraft");
+
+    public DataHandler() {
+        DataHandler.INSTANCE = this;
+    }
 
     public NBTTagCompound getInventoryCompound(EntityPlayer entityPlayer) {
         // save data

@@ -18,56 +18,41 @@
 
 package de.minestar.invsync.core;
 
-import java.io.IOException;
-
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import de.minestar.protocol.newpackets.PacketHandler;
+import de.minestar.protocol.newpackets.packets.InventoryRequestPackage;
 
 public class ConnectListener implements Listener {
 
     public static ConnectListener INSTANCE;
     public DataHandler dataHandler;
 
-    private InvSyncCore core;
-
-    public ConnectListener(InvSyncCore core, DataHandler dataHandler) {
+    public ConnectListener(DataHandler dataHandler) {
         ConnectListener.INSTANCE = this;
-        this.core = core;
         this.dataHandler = dataHandler;
     }
 
     public void saveData(Player player) {
         // send inventory to bungee
         try {
-            CraftPlayer cPlayer = (CraftPlayer) player;
-            MultiPacket multiPacket = new MultiPacket("Forward", "ALL", PacketType.INVENTORY_SAVE);
-            multiPacket.addPacket(Packet.createPackage(PacketType.PLAYERNAME, player.getName()));
-            multiPacket.addPacket(Packet.createPackage(PacketType.INVENTORY_SAVE, this.dataHandler.getByteStream(cPlayer.getHandle()).toByteArray()));
-            this.sendPackage(player, multiPacket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-    }
-
-    private void sendPackage(Player player, MultiPacket packet) {
-        try {
-            String channelName = "globalchat";
-            player.sendPluginMessage(this.core, channelName, packet.getByteOutputStream().toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void loadData(Player player) {
-        // only load, if there is data present
+    @EventHandler
+    public void test(PlayerDropItemEvent event) {
+        InventoryRequestPackage packet = new InventoryRequestPackage(event.getPlayer().getName());
+        PacketHandler.INSTANCE.send(packet, event.getPlayer(), PacketHandler.CHANNEL);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -78,11 +63,6 @@ public class ConnectListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onKick(PlayerKickEvent event) {
         this.saveData(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onConnect(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLater(this.core, new LoadThread(event.getPlayer()), 1l);
     }
 
     public void onShutdown() {

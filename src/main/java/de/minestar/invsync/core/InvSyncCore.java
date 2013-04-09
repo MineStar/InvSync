@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
 import de.minestar.minestarlibrary.AbstractCore;
+import de.minestar.protocol.newpackets.PacketHandler;
 
 public class InvSyncCore extends AbstractCore {
 
@@ -26,15 +27,15 @@ public class InvSyncCore extends AbstractCore {
 
     @Override
     protected boolean createListener() {
-        this.listener = new ConnectListener(this, this.dataHandler);
+        this.listener = new ConnectListener(this.dataHandler);
         return super.createListener();
     }
 
     @Override
     protected boolean registerEvents(PluginManager pm) {
         pm.registerEvents(this.listener, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "globalchat");
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "globalchat", new MessageListener());
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PacketHandler.CHANNEL);
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, PacketHandler.CHANNEL, new MessageListener());
         return super.registerEvents(pm);
     }
 

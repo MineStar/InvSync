@@ -18,17 +18,22 @@
 
 package de.minestar.invsync.core;
 
-import org.bukkit.entity.Player;
+import net.minecraft.server.v1_5_R2.NBTTagCompound;
+
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 
 public class LoadThread implements Runnable {
-    private Player player;
+    private CraftPlayer player;
+    private NBTTagCompound tagCompound;
 
-    public LoadThread(Player player) {
+    public LoadThread(CraftPlayer player, NBTTagCompound tagCompound) {
         this.player = player;
+        this.tagCompound = tagCompound;
     }
 
     @Override
     public void run() {
-        ConnectListener.INSTANCE.loadData(player);
+        System.out.println("updating inventory with saved one!");
+        DataHandler.INSTANCE.applyInventory(this.player.getHandle(), this.tagCompound);
     }
 }
