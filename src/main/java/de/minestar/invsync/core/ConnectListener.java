@@ -18,17 +18,25 @@
 
 package de.minestar.invsync.core;
 
+import java.io.IOException;
+
+import net.minecraft.server.v1_5_R2.NBTTagCompound;
+
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
 import de.minestar.protocol.newpackets.PacketHandler;
-import de.minestar.protocol.newpackets.packets.InventoryRequestPackage;
+import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
+import de.minestar.protocol.newpackets.packets.InventoryRequestPacket;
 
 public class ConnectListener implements Listener {
 
@@ -41,18 +49,27 @@ public class ConnectListener implements Listener {
     }
 
     public void saveData(Player player) {
-        // send inventory to bungee
         try {
-
-        } catch (Exception e) {
+            // send inventory to bungee
+            System.out.println("SENDING INVENTORY TO BUNGEE");
+            CraftPlayer cPlayer = (CraftPlayer) player;
+            NBTTagCompound tagCompound = DataHandler.INSTANCE.getInventoryCompound(cPlayer.getHandle());
+            InventoryDataPacket packet = new InventoryDataPacket(player.getName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
+            PacketHandler.INSTANCE.send(packet, player, PacketHandler.CHANNEL);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @EventHandler
-    public void test(PlayerDropItemEvent event) {
-        InventoryRequestPackage packet = new InventoryRequestPackage(event.getPlayer().getName());
-        PacketHandler.INSTANCE.send(packet, event.getPlayer(), PacketHandler.CHANNEL);
+    public void onDrop(PlayerDropItemEvent event) {
+        this.saveData(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        InventoryRequestPacket packet = new InventoryRequestPacket(event.getPlayer().getName());
+        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(event.getPlayer(), packet), 2L);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

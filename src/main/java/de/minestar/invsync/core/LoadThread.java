@@ -33,7 +33,7 @@ public class LoadThread implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("updating inventory with saved one!");
+        System.out.println("updating inventory...");
         DataHandler.INSTANCE.applyInventory(this.player.getHandle(), this.tagCompound);
     }
 }

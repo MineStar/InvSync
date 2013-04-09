@@ -7,10 +7,15 @@ import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import net.minecraft.server.v1_5_R2.Packet250CustomPayload;
+
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import de.minestar.invsync.core.InvSyncCore;
-import de.minestar.protocol.newpackets.packets.InventoryRequestPackage;
+import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
+import de.minestar.protocol.newpackets.packets.InventoryRequestPacket;
 
 public class PacketHandler {
 
@@ -122,10 +127,27 @@ public class PacketHandler {
             dos.write(dataArray);
 
             // send data
-            player.sendPluginMessage(InvSyncCore.INSTANCE, CHANNEL, bos.toByteArray());
+            System.out.println("------------------------------------");
+            System.out.println("sending: " + packet.getType());
+            this.sendPluginMessage(player, InvSyncCore.INSTANCE, CHANNEL, bos.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendPluginMessage(Player player, Plugin source, String channel, byte[] message) {
+        CraftPlayer cPlayer = (CraftPlayer) player;
+        if (cPlayer.getHandle().playerConnection == null) {
+            System.out.println("no connection");
+            return;
+        }
+
+        Packet250CustomPayload packet = new Packet250CustomPayload();
+        packet.tag = channel;
+        packet.length = message.length;
+        packet.data = message;
+        cPlayer.getHandle().playerConnection.sendPacket(packet);
+        System.out.println("done!");
     }
 
     public NetworkPacket extractPacket(byte[] data) {
@@ -151,7 +173,10 @@ public class PacketHandler {
 
             switch (type) {
                 case INVENTORY_REQUEST : {
-                    return new InventoryRequestPackage(dataInputStream);
+                    return new InventoryRequestPacket(dataInputStream);
+                }
+                case INVENTORY_DATA : {
+                    return new InventoryDataPacket(dataInputStream);
                 }
                 default : {
                     return null;

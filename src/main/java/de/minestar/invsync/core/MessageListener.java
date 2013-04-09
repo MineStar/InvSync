@@ -1,31 +1,28 @@
 package de.minestar.invsync.core;
 
+import net.minecraft.server.v1_5_R2.NBTTagCompound;
+
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
 import de.minestar.protocol.newpackets.NetworkPacket;
 import de.minestar.protocol.newpackets.PacketHandler;
-import de.minestar.protocol.newpackets.packets.InventoryRequestPackage;
+import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
 
 public class MessageListener implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] data) {
-        // System.out.println("received package... " + data.length);
-        // Packet packet = Packet.readPacket(data);
-        // if (packet != null) {
-        // // decode answer
-        // System.out.println("valid packet received!");
-        // String message = new String(packet.getData(), Packet.UTF8);
-        // System.out.println("message was: " + message);
-        // }
-
         // get packet
         NetworkPacket packet = PacketHandler.INSTANCE.extractPacket(data);
         if (packet != null) {
+            System.out.println("PACKET: " + packet.getType());
             switch (packet.getType()) {
-                case INVENTORY_REQUEST : {
-                    this.handleInventoryRequest((InventoryRequestPackage) packet);
+                case INVENTORY_DATA : {
+                    this.handleInventoryDataPacket(player, (InventoryDataPacket) packet);
                     break;
                 }
                 default : {
@@ -35,7 +32,23 @@ public class MessageListener implements PluginMessageListener {
         }
     }
 
-    private void handleInventoryRequest(InventoryRequestPackage packet) {
-        System.out.println("INVENTORY_REQUEST from player: " + packet.getPlayerName());
+    private void handleInventoryDataPacket(Player player, InventoryDataPacket packet) {
+        // names must be equal
+        if (!player.getName().equalsIgnoreCase(packet.getPlayerName())) {
+            return;
+        }
+
+        System.out.println("INVENTORY_DATA received from player: " + packet.getPlayerName());
+        try {
+            // fetch data
+            CraftPlayer cPlayer = (CraftPlayer) player;
+            cPlayer.getInventory().clear();
+            NBTTagCompound tagCompound = CompressedStreamTools.loadMapFromByteArray(packet.getData());
+
+            // start thread
+            Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new LoadThread(cPlayer, tagCompound), 5l);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
