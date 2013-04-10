@@ -10,11 +10,10 @@ public class InvSyncCore extends AbstractCore {
     public static InvSyncCore INSTANCE;
     public static final String NAME = "InvSync";
 
-    private DataHandler dataHandler;
     private ConnectListener listener;
 
-    private InventoryMessageListener inventoryMessageListener;
-    private InventoryPacketHandler inventoryPacketHandler;
+    private DataMessageListener dataMessageListener;
+    private DataPacketHandler dataPacketHandler;
 
     public InvSyncCore() {
         super(NAME);
@@ -23,29 +22,23 @@ public class InvSyncCore extends AbstractCore {
 
     @Override
     protected boolean createManager() {
-        this.dataHandler = new DataHandler();
-        this.inventoryPacketHandler = new InventoryPacketHandler(this, "MS|" + InvSyncCore.NAME);
+        new DataHandler();
+        this.dataPacketHandler = new DataPacketHandler(this, "MS_InvSync");
         return super.createManager();
     }
 
     @Override
     protected boolean createListener() {
-        this.listener = new ConnectListener(this.inventoryPacketHandler, this.dataHandler);
+        this.listener = new ConnectListener(this.dataPacketHandler);
+        this.dataMessageListener = new DataMessageListener(this.dataPacketHandler);
         return super.createListener();
     }
 
     @Override
     protected boolean registerEvents(PluginManager pm) {
         pm.registerEvents(this.listener, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, this.inventoryPacketHandler.getChannel());
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, this.inventoryPacketHandler.getChannel(), this.inventoryMessageListener);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, this.dataPacketHandler.getChannel());
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, this.dataPacketHandler.getChannel(), this.dataMessageListener);
         return super.registerEvents(pm);
     }
-
-    @Override
-    protected boolean commonDisable() {
-        this.listener.onShutdown();
-        return super.commonDisable();
-    }
-
 }

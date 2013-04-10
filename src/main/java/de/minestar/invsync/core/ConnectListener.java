@@ -18,76 +18,35 @@
 
 package de.minestar.invsync.core;
 
-import java.io.IOException;
-
-import net.minecraft.server.v1_5_R2.NBTTagCompound;
-
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
-import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
-import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
-import de.minestar.protocol.newpackets.packets.InventoryRequestPacket;
+import de.minestar.protocol.newpackets.packets.DataRequestPacket;
+import de.minestar.protocol.newpackets.packets.ServerchangeRequestPacket;
 
 public class ConnectListener implements Listener {
 
     public static ConnectListener INSTANCE;
-    private InventoryPacketHandler inventoryPacketHandler;
-    private DataHandler dataHandler;
+    private DataPacketHandler inventoryPacketHandler;
 
-    public ConnectListener(InventoryPacketHandler inventoryPacketHandler, DataHandler dataHandler) {
+    public ConnectListener(DataPacketHandler inventoryPacketHandler) {
         ConnectListener.INSTANCE = this;
         this.inventoryPacketHandler = inventoryPacketHandler;
-        this.dataHandler = dataHandler;
-    }
-
-    public void saveData(Player player) {
-        try {
-            // send inventory to bungee
-            System.out.println("SENDING INVENTORY TO BUNGEE");
-            CraftPlayer cPlayer = (CraftPlayer) player;
-            NBTTagCompound tagCompound = this.dataHandler.getInventoryCompound(cPlayer.getHandle());
-            InventoryDataPacket packet = new InventoryDataPacket(player.getName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
-            this.inventoryPacketHandler.send(packet, player, this.inventoryPacketHandler.getChannel());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        this.saveData(event.getPlayer());
+        ServerchangeRequestPacket packet = new ServerchangeRequestPacket(event.getPlayer().getName(), "res");
+        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 1L);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        InventoryRequestPacket packet = new InventoryRequestPacket(event.getPlayer().getName());
-        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 2L);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onDisconnect(PlayerQuitEvent event) {
-        this.saveData(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onKick(PlayerKickEvent event) {
-        this.saveData(event.getPlayer());
-    }
-
-    public void onShutdown() {
-        Player[] playerList = Bukkit.getServer().getOnlinePlayers();
-        for (Player player : playerList) {
-            this.saveData(player);
-        }
+        DataRequestPacket packet = new DataRequestPacket(event.getPlayer().getName());
+        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 3L);
     }
 
 }

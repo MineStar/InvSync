@@ -7,29 +7,27 @@ import java.io.IOException;
 import de.minestar.protocol.newpackets.NetworkPacket;
 import de.minestar.protocol.newpackets.PacketType;
 
-public class InventoryRequestPacket extends NetworkPacket {
+public class DataRequestPacket extends NetworkPacket {
+
+    private final static PacketType thisPacketType = PacketType.DATA_REQUEST;
 
     private String playerName;
 
-    public InventoryRequestPacket(String playerName) {
-        super(PacketType.INVENTORY_REQUEST);
+    public DataRequestPacket(String playerName) {
+        super(thisPacketType);
         this.playerName = playerName;
     }
 
-    public InventoryRequestPacket(PacketType type) {
-        super(PacketType.INVENTORY_REQUEST);
+    public DataRequestPacket(PacketType type) {
+        super(thisPacketType);
     }
 
-    public InventoryRequestPacket(DataInputStream dataInputStream) throws IOException {
-        super(PacketType.INVENTORY_REQUEST, dataInputStream);
+    public DataRequestPacket(DataInputStream dataInputStream) throws IOException {
+        super(thisPacketType, dataInputStream);
     }
 
     public PacketType getPacketType() {
-        return PacketType.INVENTORY_REQUEST;
-    }
-
-    public String getPlayerName() {
-        return playerName;
+        return thisPacketType;
     }
 
     @Override
@@ -40,5 +38,9 @@ public class InventoryRequestPacket extends NetworkPacket {
     @Override
     public void onReceive(DataInputStream dataInputStream) throws IOException {
         this.playerName = dataInputStream.readUTF();
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 }

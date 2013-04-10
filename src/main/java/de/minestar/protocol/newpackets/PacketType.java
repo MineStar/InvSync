@@ -6,9 +6,17 @@ import java.util.Map;
 public enum PacketType {
     MULTIPACKET,
 
-    INVENTORY_REQUEST,
+    SERVERCHANGE_REQUEST,
 
-    INVENTORY_DATA;
+    SERVERCHANGE_OK,
+
+    SERVERCHANGE_DENY,
+
+    DATA_SEND,
+
+    DATA_REQUEST,
+
+    DATA_OK;
 
     private static Map<Integer, PacketType> mapByOrdinal;
 
