@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
 import de.minestar.minestarlibrary.AbstractCore;
-import de.minestar.protocol.newpackets.PacketHandler;
 
 public class InvSyncCore extends AbstractCore {
 
@@ -14,6 +13,9 @@ public class InvSyncCore extends AbstractCore {
     private DataHandler dataHandler;
     private ConnectListener listener;
 
+    private InventoryMessageListener inventoryMessageListener;
+    private InventoryPacketHandler inventoryPacketHandler;
+
     public InvSyncCore() {
         super(NAME);
         INSTANCE = this;
@@ -22,20 +24,21 @@ public class InvSyncCore extends AbstractCore {
     @Override
     protected boolean createManager() {
         this.dataHandler = new DataHandler();
+        this.inventoryPacketHandler = new InventoryPacketHandler(this, "MS|" + InvSyncCore.NAME);
         return super.createManager();
     }
 
     @Override
     protected boolean createListener() {
-        this.listener = new ConnectListener(this.dataHandler);
+        this.listener = new ConnectListener(this.inventoryPacketHandler, this.dataHandler);
         return super.createListener();
     }
 
     @Override
     protected boolean registerEvents(PluginManager pm) {
         pm.registerEvents(this.listener, this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, PacketHandler.CHANNEL);
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, PacketHandler.CHANNEL, new MessageListener());
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, this.inventoryPacketHandler.getChannel());
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, this.inventoryPacketHandler.getChannel(), this.inventoryMessageListener);
         return super.registerEvents(pm);
     }
 

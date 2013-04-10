@@ -4,39 +4,30 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
-import net.minecraft.server.v1_5_R2.Packet250CustomPayload;
-
-import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import de.minestar.invsync.core.InvSyncCore;
-import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
-import de.minestar.protocol.newpackets.packets.InventoryRequestPacket;
+public abstract class BukkitPacketHandler {
 
-public class PacketHandler {
+    private final Plugin plugin;
+    private final String broadcast;
+    private final String channel;
 
-    public static final PacketHandler INSTANCE;
-    private static final String BROADCAST = "ALL";
-    public static final String CHANNEL = "GlobalChat";
-
-    static {
-        INSTANCE = new PacketHandler();
+    public BukkitPacketHandler(Plugin plugin, String channel) {
+        this(plugin, channel, "ALL");
     }
 
-    private static final int MAX_PACKET_SIZE = 32766;
-
-    private final ByteBuffer BUFFER;
-
-    public PacketHandler() {
-        BUFFER = ByteBuffer.allocate(MAX_PACKET_SIZE);
+    public BukkitPacketHandler(Plugin plugin, String channel, String defaultBroadcast) {
+        this.plugin = plugin;
+        this.channel = channel;
+        this.broadcast = defaultBroadcast;
     }
 
     public void send(NetworkPacket packet, Player player, String channel) {
-        this.send(packet, player, channel, BungeeSubChannel.FORWARD, BROADCAST);
+        this.send(packet, player, channel, BungeeSubChannel.FORWARD, this.broadcast);
     }
 
     public void send(NetworkPacket packet, Player player, String channel, BungeeSubChannel subChannel, String targetServer) {
@@ -79,29 +70,6 @@ public class PacketHandler {
         // Data (Array of bytes - Must be long as defined in DataLength
         //
 
-        // // Create Head
-        // BUFFER.clear();
-        // // BungeeChannel
-        // BUFFER.put(subChannel.getName().getBytes(UFT8));
-        // // TargetServer
-        // BUFFER.put(targetServer.getBytes(UFT8));
-        //
-        // // Channel
-        // BUFFER.put(channel.getBytes(UFT8));
-        //
-        // // Placeholder
-        // int pos1 = BUFFER.position();
-        // BUFFER.putInt(0);
-        // int pos2 = BUFFER.position();
-        // packet.pack(BUFFER);
-        // BUFFER.putInt(pos1, BUFFER.position() - pos2);
-        //
-        // BUFFER.rewind();
-        //
-        // // Dirty -.-
-        // server.sendData(channel, Arrays.copyOf(BUFFER.array(), BUFFER.limit()));
-        // BUFFER.clear();
-
         try {
             // create streams
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -127,27 +95,10 @@ public class PacketHandler {
             dos.write(dataArray);
 
             // send data
-            System.out.println("------------------------------------");
-            System.out.println("sending: " + packet.getType());
-            this.sendPluginMessage(player, InvSyncCore.INSTANCE, CHANNEL, bos.toByteArray());
+            player.sendPluginMessage(this.plugin, this.channel, bos.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void sendPluginMessage(Player player, Plugin source, String channel, byte[] message) {
-        CraftPlayer cPlayer = (CraftPlayer) player;
-        if (cPlayer.getHandle().playerConnection == null) {
-            System.out.println("no connection");
-            return;
-        }
-
-        Packet250CustomPayload packet = new Packet250CustomPayload();
-        packet.tag = channel;
-        packet.length = message.length;
-        packet.data = message;
-        cPlayer.getHandle().playerConnection.sendPacket(packet);
-        System.out.println("done!");
     }
 
     public NetworkPacket extractPacket(byte[] data) {
@@ -159,6 +110,10 @@ public class PacketHandler {
             // extract head
             PacketHeadData headData = new PacketHeadData(dataInputStream);
 
+            if (!headData.getSubChannel().equalsIgnoreCase(this.getChannel())) {
+                return null;
+            }
+
             // get data
             int datalength = dataInputStream.readInt();
             byte[] dataArray = new byte[datalength];
@@ -169,21 +124,21 @@ public class PacketHandler {
             dataInputStream = new DataInputStream(bis);
 
             // get packettype
-            PacketType type = PacketType.get(dataInputStream.readInt());
+            PacketType packetType = PacketType.get(dataInputStream.readInt());
 
-            switch (type) {
-                case INVENTORY_REQUEST : {
-                    return new InventoryRequestPacket(dataInputStream);
-                }
-                case INVENTORY_DATA : {
-                    return new InventoryDataPacket(dataInputStream);
-                }
-                default : {
-                    return null;
-                }
-            }
+            return this.handlePacket(packetType, dataInputStream);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    protected abstract NetworkPacket handlePacket(PacketType packetType, DataInputStream dataInputStream) throws IOException;
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public String getBroadcast() {
+        return broadcast;
     }
 }

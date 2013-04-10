@@ -6,16 +6,6 @@ import java.util.Map;
 public enum PacketType {
     MULTIPACKET,
 
-    JOIN,
-
-    QUIT,
-
-    KICK,
-
-    CHAT,
-
-    COMMAND,
-
     INVENTORY_REQUEST,
 
     INVENTORY_DATA;

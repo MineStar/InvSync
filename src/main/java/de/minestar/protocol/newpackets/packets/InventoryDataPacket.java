@@ -3,7 +3,6 @@ package de.minestar.protocol.newpackets.packets;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import de.minestar.protocol.newpackets.NetworkPacket;
 import de.minestar.protocol.newpackets.PacketType;
@@ -25,24 +24,12 @@ public class InventoryDataPacket extends NetworkPacket {
         super(PacketType.INVENTORY_DATA);
     }
 
-    public InventoryDataPacket(ByteBuffer buffer) {
-        super(PacketType.INVENTORY_DATA, buffer);
-    }
-
     public InventoryDataPacket(DataInputStream dataInputStream) throws IOException {
         super(PacketType.INVENTORY_DATA, dataInputStream);
     }
 
     public PacketType getPacketType() {
         return PacketType.INVENTORY_DATA;
-    }
-
-    @Override
-    public void onSend(ByteBuffer buffer) {
-    }
-
-    @Override
-    public void onReceive(ByteBuffer buffer) {
     }
 
     public String getPlayerName() {

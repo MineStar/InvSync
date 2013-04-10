@@ -9,15 +9,20 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
 import de.minestar.protocol.newpackets.NetworkPacket;
-import de.minestar.protocol.newpackets.PacketHandler;
 import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
 
-public class MessageListener implements PluginMessageListener {
+public class InventoryMessageListener implements PluginMessageListener {
+
+    private InventoryPacketHandler packetHandler;
+
+    private InventoryMessageListener(InventoryPacketHandler packetHandler) {
+        this.packetHandler = packetHandler;
+    }
 
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] data) {
         // get packet
-        NetworkPacket packet = PacketHandler.INSTANCE.extractPacket(data);
+        NetworkPacket packet = packetHandler.extractPacket(data);
         if (packet != null) {
             System.out.println("PACKET: " + packet.getType());
             switch (packet.getType()) {

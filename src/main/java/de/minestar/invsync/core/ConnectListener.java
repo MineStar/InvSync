@@ -34,17 +34,18 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
-import de.minestar.protocol.newpackets.PacketHandler;
 import de.minestar.protocol.newpackets.packets.InventoryDataPacket;
 import de.minestar.protocol.newpackets.packets.InventoryRequestPacket;
 
 public class ConnectListener implements Listener {
 
     public static ConnectListener INSTANCE;
-    public DataHandler dataHandler;
+    private InventoryPacketHandler inventoryPacketHandler;
+    private DataHandler dataHandler;
 
-    public ConnectListener(DataHandler dataHandler) {
+    public ConnectListener(InventoryPacketHandler inventoryPacketHandler, DataHandler dataHandler) {
         ConnectListener.INSTANCE = this;
+        this.inventoryPacketHandler = inventoryPacketHandler;
         this.dataHandler = dataHandler;
     }
 
@@ -53,9 +54,9 @@ public class ConnectListener implements Listener {
             // send inventory to bungee
             System.out.println("SENDING INVENTORY TO BUNGEE");
             CraftPlayer cPlayer = (CraftPlayer) player;
-            NBTTagCompound tagCompound = DataHandler.INSTANCE.getInventoryCompound(cPlayer.getHandle());
+            NBTTagCompound tagCompound = this.dataHandler.getInventoryCompound(cPlayer.getHandle());
             InventoryDataPacket packet = new InventoryDataPacket(player.getName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
-            PacketHandler.INSTANCE.send(packet, player, PacketHandler.CHANNEL);
+            this.inventoryPacketHandler.send(packet, player, this.inventoryPacketHandler.getChannel());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,7 +70,7 @@ public class ConnectListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         InventoryRequestPacket packet = new InventoryRequestPacket(event.getPlayer().getName());
-        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(event.getPlayer(), packet), 2L);
+        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 2L);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
