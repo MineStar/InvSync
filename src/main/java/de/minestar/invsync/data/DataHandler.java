@@ -83,7 +83,6 @@ public class DataHandler {
             extraDataCompound.setInt("Health", entityPlayer.getBukkitEntity().getHealth());
             extraDataCompound.setInt("SelectedItemSlot", entityPlayer.getBukkitEntity().getInventory().getHeldItemSlot());
             extraDataCompound.setInt("TotalXP", entityPlayer.getBukkitEntity().getTotalExperience());
-            extraDataCompound.setFloat("Exhaustion", entityPlayer.getBukkitEntity().getExhaustion());
             extraDataCompound.setInt("GameMode", entityPlayer.getBukkitEntity().getGameMode().ordinal());
 
             // set compound
@@ -156,11 +155,10 @@ public class DataHandler {
             // set fooddata
             {
                 NBTTagCompound foodDataCompound = dataCompound.getCompound("FoodData");
-                FoodMetaData foodData = new FoodMetaData();
-                foodData.foodLevel = foodDataCompound.getInt("foodLevel");
-                foodData.foodTickTimer = foodDataCompound.getInt("foodTickTimer");
-                foodData.saturationLevel = foodDataCompound.getFloat("foodSaturationLevel");
-                foodData.exhaustionLevel = foodDataCompound.getFloat("foodExhaustionLevel");
+                entityPlayer.getFoodData().foodLevel = foodDataCompound.getInt("foodLevel");
+                entityPlayer.getFoodData().foodTickTimer = foodDataCompound.getInt("foodTickTimer");
+                entityPlayer.getFoodData().saturationLevel = foodDataCompound.getFloat("foodSaturationLevel");
+                entityPlayer.getFoodData().exhaustionLevel = foodDataCompound.getFloat("foodExhaustionLevel");
             }
 
             // set extradata
@@ -169,7 +167,6 @@ public class DataHandler {
                 entityPlayer.getBukkitEntity().setHealth(extraDataCompound.getInt("Health"));
                 entityPlayer.getBukkitEntity().getInventory().setHeldItemSlot(extraDataCompound.getInt("SelectedItemSlot"));
                 entityPlayer.getBukkitEntity().setTotalExperience(extraDataCompound.getInt("TotalXP"));
-                entityPlayer.getBukkitEntity().setExhaustion(extraDataCompound.getFloat("Exhaustion"));
                 GameMode gameMode = GameMode.values()[extraDataCompound.getInt("GameMode")];
                 if (gameMode != null) {
                     entityPlayer.getBukkitEntity().setGameMode(gameMode);

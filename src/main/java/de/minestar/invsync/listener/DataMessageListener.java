@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.minecraft.server.v1_5_R2.NBTTagCompound;
 
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -60,13 +61,16 @@ public class DataMessageListener implements PluginMessageListener {
 
     private void handleDataSend(Player player, DataSendPacket packet) {
         try {
-            // apply data
-            NBTTagCompound tagCompound = CompressedStreamTools.loadMapFromByteArray(packet.getData());
-            DataHandler.INSTANCE.applyData(((CraftPlayer) player).getHandle(), tagCompound);
+            player = Bukkit.getPlayerExact(packet.getPlayerName());
+            if (player != null && player.isOnline()) {
+                // apply data
+                NBTTagCompound tagCompound = CompressedStreamTools.loadMapFromByteArray(packet.getData());
+                DataHandler.INSTANCE.applyData(((CraftPlayer) player).getHandle(), tagCompound);
 
-            // send packet
-            DataOKPacket dataPacket = new DataOKPacket(packet.getPlayerName());
-            this.dataPacketHandler.send(dataPacket, player, this.dataPacketHandler.getChannel());
+                // send packet
+                DataOKPacket dataPacket = new DataOKPacket(packet.getPlayerName());
+                this.dataPacketHandler.send(dataPacket, player, this.dataPacketHandler.getChannel());
+            }
         } catch (IOException e) {
             PlayerUtils.sendError(player, "Bungee", "Could not load data!");
             e.printStackTrace();
@@ -74,20 +78,26 @@ public class DataMessageListener implements PluginMessageListener {
     }
 
     private void handleServerchangeDeny(Player player, ServerchangeDenyPacket packet) {
-        PlayerUtils.sendError(player, "Bungee", packet.getReason());
+        player = Bukkit.getPlayerExact(packet.getPlayerName());
+        if (player != null && player.isOnline()) {
+            PlayerUtils.sendError(player, "Bungee", packet.getReason());
+        }
     }
 
     private void handleServerchangeOK(Player player, ServerchangeOKPacket packet) {
         try {
-            // send info
-            PlayerUtils.sendInfo(player, "Bungee", packet.getMessage());
+            player = Bukkit.getPlayerExact(packet.getPlayerName());
+            if (player != null && player.isOnline()) {
+                // send info
+                PlayerUtils.sendInfo(player, "Bungee", packet.getMessage());
 
-            // create data
-            NBTTagCompound tagCompound = DataHandler.INSTANCE.getDataCompound(((CraftPlayer) player).getHandle());
+                // create data
+                NBTTagCompound tagCompound = DataHandler.INSTANCE.getDataCompound(((CraftPlayer) player).getHandle());
 
-            // send packet
-            DataSendPacket dataPacket = new DataSendPacket(packet.getPlayerName(), packet.getServerName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
-            this.dataPacketHandler.send(dataPacket, player, this.dataPacketHandler.getChannel());
+                // send packet
+                DataSendPacket dataPacket = new DataSendPacket(packet.getPlayerName(), packet.getServerName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
+                this.dataPacketHandler.send(dataPacket, player, this.dataPacketHandler.getChannel());
+            }
         } catch (IOException e) {
             PlayerUtils.sendError(player, "Bungee", "Could not sync data!");
             e.printStackTrace();
