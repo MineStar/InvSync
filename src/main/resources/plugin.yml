@@ -1,6 +1,6 @@
-name: InvSync
-main: de.minestar.invsync.core.InvSyncCore
-version: 0.1
+name: BungeeBridge
+main: de.minestar.bungeebridge.core.BungeeBridgeCore
+version: 0.0.1
 depend: [MineStarLibrary]
 commands:
   goto:
