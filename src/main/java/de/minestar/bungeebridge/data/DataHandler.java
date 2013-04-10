@@ -4,12 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import net.minecraft.server.v1_5_R2.EntityPlayer;
 import net.minecraft.server.v1_5_R2.FoodMetaData;
 import net.minecraft.server.v1_5_R2.InventoryEnderChest;
 import net.minecraft.server.v1_5_R2.ItemStack;
+import net.minecraft.server.v1_5_R2.MobEffect;
 import net.minecraft.server.v1_5_R2.NBTTagCompound;
 import net.minecraft.server.v1_5_R2.NBTTagList;
 
@@ -28,6 +30,7 @@ public class DataHandler {
         DataHandler.INSTANCE = this;
     }
 
+    @SuppressWarnings("unchecked")
     public NBTTagCompound getDataCompound(EntityPlayer entityPlayer) {
         // save inventory
         NBTTagCompound dataCompound = new NBTTagCompound();
@@ -101,9 +104,27 @@ public class DataHandler {
             // set compound
             dataCompound.setCompound("FoodData", foodCompound);
         }
+
+        // write effects
+        {
+            if (!entityPlayer.effects.isEmpty()) {
+                NBTTagList effectTagList = new NBTTagList();
+                Iterator<MobEffect> iterator = entityPlayer.effects.values().iterator();
+
+                // add every effect
+                while (iterator.hasNext()) {
+                    MobEffect mobeffect = iterator.next();
+                    effectTagList.add(mobeffect.a(new NBTTagCompound()));
+                }
+
+                // set tagList
+                dataCompound.set("ActiveEffects", effectTagList);
+            }
+        }
         return dataCompound;
     }
 
+    @SuppressWarnings("unchecked")
     public void applyData(EntityPlayer entityPlayer, NBTTagCompound dataCompound) {
         // add inventorydata to player
         if (dataCompound != null) {
@@ -170,6 +191,24 @@ public class DataHandler {
                 GameMode gameMode = GameMode.values()[extraDataCompound.getInt("GameMode")];
                 if (gameMode != null) {
                     entityPlayer.getBukkitEntity().setGameMode(gameMode);
+                }
+            }
+
+            // set effects
+            {
+                // clear current effects
+                entityPlayer.effects.clear();
+
+                // add saved effects
+                if (dataCompound.hasKey("ActiveEffects")) {
+                    NBTTagList effectTagList = dataCompound.getList("ActiveEffects");
+
+                    // add every mobeffect
+                    for (int i = 0; i < effectTagList.size(); i++) {
+                        NBTTagCompound effectCompound = (NBTTagCompound) effectTagList.get(i);
+                        MobEffect mobeffect = MobEffect.b(effectCompound);
+                        entityPlayer.effects.put(Integer.valueOf(mobeffect.getEffectId()), mobeffect);
+                    }
                 }
             }
         }
