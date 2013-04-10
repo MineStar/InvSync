@@ -3,6 +3,10 @@ package de.minestar.invsync.core;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
+import de.minestar.invsync.data.DataHandler;
+import de.minestar.invsync.data.DataPacketHandler;
+import de.minestar.invsync.listener.ActionListener;
+import de.minestar.invsync.listener.DataMessageListener;
 import de.minestar.minestarlibrary.AbstractCore;
 
 public class InvSyncCore extends AbstractCore {
@@ -10,7 +14,7 @@ public class InvSyncCore extends AbstractCore {
     public static InvSyncCore INSTANCE;
     public static final String NAME = "InvSync";
 
-    private ConnectListener listener;
+    private ActionListener listener;
 
     private DataMessageListener dataMessageListener;
     private DataPacketHandler dataPacketHandler;
@@ -29,7 +33,7 @@ public class InvSyncCore extends AbstractCore {
 
     @Override
     protected boolean createListener() {
-        this.listener = new ConnectListener(this.dataPacketHandler);
+        this.listener = new ActionListener(this.dataPacketHandler);
         this.dataMessageListener = new DataMessageListener(this.dataPacketHandler);
         return super.createListener();
     }

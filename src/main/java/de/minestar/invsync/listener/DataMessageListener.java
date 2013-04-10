@@ -1,4 +1,4 @@
-package de.minestar.invsync.core;
+package de.minestar.invsync.listener;
 
 import java.io.IOException;
 
@@ -8,6 +8,8 @@ import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import de.minestar.invsync.data.DataHandler;
+import de.minestar.invsync.data.DataPacketHandler;
 import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
 import de.minestar.minestarlibrary.utils.PlayerUtils;
 import de.minestar.protocol.newpackets.NetworkPacket;

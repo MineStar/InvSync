@@ -16,7 +16,7 @@
  * along with MineStarLibrary.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.minestar.invsync.core;
+package de.minestar.invsync.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -24,16 +24,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import de.minestar.invsync.core.InvSyncCore;
+import de.minestar.invsync.core.RequestThread;
+import de.minestar.invsync.data.DataPacketHandler;
 import de.minestar.protocol.newpackets.packets.DataRequestPacket;
 import de.minestar.protocol.newpackets.packets.ServerchangeRequestPacket;
 
-public class ConnectListener implements Listener {
+public class ActionListener implements Listener {
 
-    public static ConnectListener INSTANCE;
+    public static ActionListener INSTANCE;
     private DataPacketHandler inventoryPacketHandler;
 
-    public ConnectListener(DataPacketHandler inventoryPacketHandler) {
-        ConnectListener.INSTANCE = this;
+    public ActionListener(DataPacketHandler inventoryPacketHandler) {
+        ActionListener.INSTANCE = this;
         this.inventoryPacketHandler = inventoryPacketHandler;
     }
 

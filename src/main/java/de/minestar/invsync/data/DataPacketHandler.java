@@ -1,4 +1,4 @@
-package de.minestar.invsync.core;
+package de.minestar.invsync.data;
 
 import java.io.DataInputStream;
 import java.io.IOException;
