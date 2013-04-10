@@ -3,11 +3,13 @@ package de.minestar.invsync.core;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
+import de.minestar.invsync.commands.cmdGoTo;
 import de.minestar.invsync.data.DataHandler;
 import de.minestar.invsync.data.DataPacketHandler;
 import de.minestar.invsync.listener.ActionListener;
 import de.minestar.invsync.listener.DataMessageListener;
 import de.minestar.minestarlibrary.AbstractCore;
+import de.minestar.minestarlibrary.commands.CommandList;
 
 public class InvSyncCore extends AbstractCore {
 
@@ -22,6 +24,17 @@ public class InvSyncCore extends AbstractCore {
     public InvSyncCore() {
         super(NAME);
         INSTANCE = this;
+    }
+
+    @Override
+    protected boolean createCommands() {
+        //@formatter:off
+        cmdList = new CommandList(NAME,
+                // USER PUNISH COMMANDS
+                new cmdGoTo             ("/goto",       "<ServerName>",   "invsync.commands.goto", this.dataPacketHandler)
+            );
+            //@formatter:on
+        return true;
     }
 
     @Override

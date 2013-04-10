@@ -21,14 +21,12 @@ package de.minestar.invsync.listener;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import de.minestar.invsync.core.InvSyncCore;
 import de.minestar.invsync.core.RequestThread;
 import de.minestar.invsync.data.DataPacketHandler;
 import de.minestar.protocol.newpackets.packets.DataRequestPacket;
-import de.minestar.protocol.newpackets.packets.ServerchangeRequestPacket;
 
 public class ActionListener implements Listener {
 
@@ -38,12 +36,6 @@ public class ActionListener implements Listener {
     public ActionListener(DataPacketHandler inventoryPacketHandler) {
         ActionListener.INSTANCE = this;
         this.inventoryPacketHandler = inventoryPacketHandler;
-    }
-
-    @EventHandler
-    public void onDrop(PlayerDropItemEvent event) {
-        ServerchangeRequestPacket packet = new ServerchangeRequestPacket(event.getPlayer().getName(), "res");
-        Bukkit.getScheduler().runTaskLater(InvSyncCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 1L);
     }
 
     @EventHandler
