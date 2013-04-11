@@ -9,6 +9,7 @@ import org.bukkit.craftbukkit.v1_5_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import de.minestar.bungeebridge.core.BungeeBridgeCore;
 import de.minestar.bungeebridge.data.DataHandler;
 import de.minestar.bungeebridge.data.DataPacketHandler;
 import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
@@ -63,9 +64,11 @@ public class DataMessageListener implements PluginMessageListener {
         try {
             player = Bukkit.getPlayerExact(packet.getPlayerName());
             if (player != null && player.isOnline()) {
-                // apply data
-                NBTTagCompound tagCompound = CompressedStreamTools.loadMapFromByteArray(packet.getData());
-                DataHandler.INSTANCE.applyData(((CraftPlayer) player).getHandle(), tagCompound);
+                if (BungeeBridgeCore.SYNC_DATA) {
+                    // apply data
+                    NBTTagCompound tagCompound = CompressedStreamTools.loadMapFromByteArray(packet.getData());
+                    DataHandler.INSTANCE.applyData(((CraftPlayer) player).getHandle(), tagCompound);
+                }
 
                 // send packet
                 DataOKPacket dataPacket = new DataOKPacket(packet.getPlayerName());

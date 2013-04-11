@@ -1,6 +1,9 @@
 package de.minestar.bungeebridge.core;
 
+import java.io.File;
+
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 
 import de.minestar.bungeebridge.commands.cmdGoTo;
@@ -15,6 +18,10 @@ public class BungeeBridgeCore extends AbstractCore {
 
     public static BungeeBridgeCore INSTANCE;
     public static final String NAME = "InvSync";
+
+    public static boolean SYNC_CHAT = true;
+    public static boolean SYNC_DEATH = true;
+    public static boolean SYNC_DATA = true;
 
     private ActionListener listener;
 
@@ -37,8 +44,43 @@ public class BungeeBridgeCore extends AbstractCore {
         return true;
     }
 
+    private void loadConfig() {
+        try {
+            File file = new File(this.getDataFolder(), "sync_settings.yml");
+            if (!file.exists()) {
+                this.createConfig(file);
+                return;
+            }
+
+            YamlConfiguration config = new YamlConfiguration();
+            config.load(file);
+            BungeeBridgeCore.SYNC_CHAT = config.getBoolean("sync.chat", BungeeBridgeCore.SYNC_CHAT);
+            BungeeBridgeCore.SYNC_DEATH = config.getBoolean("sync.death", BungeeBridgeCore.SYNC_DEATH);
+            BungeeBridgeCore.SYNC_DATA = config.getBoolean("sync.data", BungeeBridgeCore.SYNC_DATA);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createConfig(File file) {
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+
+            YamlConfiguration config = new YamlConfiguration();
+            config.set("sync.chat", BungeeBridgeCore.SYNC_CHAT);
+            config.set("sync.death", BungeeBridgeCore.SYNC_DEATH);
+            config.set("sync.data", BungeeBridgeCore.SYNC_DATA);
+            config.save(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected boolean createManager() {
+        this.loadConfig();
         new DataHandler();
         this.dataPacketHandler = new DataPacketHandler(this, "MS_InvSync");
         return super.createManager();

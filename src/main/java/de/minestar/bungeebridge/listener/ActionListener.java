@@ -23,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -31,16 +32,17 @@ import de.minestar.bungeebridge.core.BungeeBridgeCore;
 import de.minestar.bungeebridge.core.RequestThread;
 import de.minestar.bungeebridge.data.DataPacketHandler;
 import de.minestar.minestarlibrary.protocol.packets.ChatDeathPacket;
+import de.minestar.minestarlibrary.protocol.packets.ChatMessagePacket;
 import de.minestar.minestarlibrary.protocol.packets.DataRequestPacket;
 
 public class ActionListener implements Listener {
 
     public static ActionListener INSTANCE;
-    private DataPacketHandler inventoryPacketHandler;
+    private DataPacketHandler dataPacketHandler;
 
     public ActionListener(DataPacketHandler inventoryPacketHandler) {
         ActionListener.INSTANCE = this;
-        this.inventoryPacketHandler = inventoryPacketHandler;
+        this.dataPacketHandler = inventoryPacketHandler;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -48,15 +50,28 @@ public class ActionListener implements Listener {
         // remove join-message
         event.setJoinMessage(null);
 
-        // send DataRequestPacket
-        DataRequestPacket packet = new DataRequestPacket(event.getPlayer().getName());
-        Bukkit.getScheduler().runTaskLater(BungeeBridgeCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getPlayer(), packet), 2L);
+        if (BungeeBridgeCore.SYNC_DATA) {
+            // send DataRequestPacket
+            DataRequestPacket packet = new DataRequestPacket(event.getPlayer().getName());
+            Bukkit.getScheduler().runTaskLater(BungeeBridgeCore.INSTANCE, new RequestThread(this.dataPacketHandler, event.getPlayer(), packet), 2L);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
         // remove quit-message
         event.setQuitMessage(null);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        if (!BungeeBridgeCore.SYNC_CHAT) {
+            return;
+        }
+
+        // send ChatMessagePacket
+        ChatMessagePacket packet = new ChatMessagePacket("BUKKIT", event.getMessage());
+        this.dataPacketHandler.send(packet, event.getPlayer(), this.dataPacketHandler.getChannel());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -67,12 +82,17 @@ public class ActionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
+        if (!BungeeBridgeCore.SYNC_DEATH) {
+            return;
+        }
+
         if (event.getDeathMessage() == null && event.getDeathMessage().length() < 1) {
             return;
         }
 
+        // send ChatDeathPacket
         ChatDeathPacket packet = new ChatDeathPacket("BUKKIT", event.getDeathMessage());
-        Bukkit.getScheduler().runTaskLater(BungeeBridgeCore.INSTANCE, new RequestThread(this.inventoryPacketHandler, event.getEntity(), packet), 1L);
+        this.dataPacketHandler.send(packet, event.getEntity(), this.dataPacketHandler.getChannel());
     }
 
 }
