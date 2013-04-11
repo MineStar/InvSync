@@ -2,8 +2,8 @@ package de.minestar.bungeebridge.core;
 
 import org.bukkit.entity.Player;
 
-import de.minestar.bungeebridge.protocol.BukkitPacketHandler;
-import de.minestar.bungeebridge.protocol.NetworkPacket;
+import de.minestar.minestarlibrary.protocol.BukkitPacketHandler;
+import de.minestar.minestarlibrary.protocol.NetworkPacket;
 
 public class RequestThread implements Runnable {
 

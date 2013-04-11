@@ -5,15 +5,15 @@ import java.io.IOException;
 
 import org.bukkit.plugin.Plugin;
 
-import de.minestar.bungeebridge.protocol.BukkitPacketHandler;
-import de.minestar.bungeebridge.protocol.NetworkPacket;
-import de.minestar.bungeebridge.protocol.PacketType;
-import de.minestar.bungeebridge.protocol.packets.DataOKPacket;
-import de.minestar.bungeebridge.protocol.packets.DataRequestPacket;
-import de.minestar.bungeebridge.protocol.packets.DataSendPacket;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeDenyPacket;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeOKPacket;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeRequestPacket;
+import de.minestar.minestarlibrary.protocol.BukkitPacketHandler;
+import de.minestar.minestarlibrary.protocol.NetworkPacket;
+import de.minestar.minestarlibrary.protocol.PacketType;
+import de.minestar.minestarlibrary.protocol.packets.DataOKPacket;
+import de.minestar.minestarlibrary.protocol.packets.DataRequestPacket;
+import de.minestar.minestarlibrary.protocol.packets.DataSendPacket;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeDenyPacket;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeOKPacket;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeRequestPacket;
 
 public class DataPacketHandler extends BukkitPacketHandler {
 

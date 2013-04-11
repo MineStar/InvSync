@@ -7,7 +7,7 @@
   	<dependency>
   		<groupId>de.minestar</groupId>
   		<artifactId>MineStarLibrary</artifactId>
-  		<version>1.5.1_R2</version>
+  		<version>1.5.1_R3-SNAPSHOT</version>
   	</dependency>
   </dependencies>
 </project>

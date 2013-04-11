@@ -11,12 +11,12 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import de.minestar.bungeebridge.data.DataHandler;
 import de.minestar.bungeebridge.data.DataPacketHandler;
-import de.minestar.bungeebridge.protocol.NetworkPacket;
-import de.minestar.bungeebridge.protocol.packets.DataOKPacket;
-import de.minestar.bungeebridge.protocol.packets.DataSendPacket;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeDenyPacket;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeOKPacket;
 import de.minestar.minestarlibrary.data.tools.CompressedStreamTools;
+import de.minestar.minestarlibrary.protocol.NetworkPacket;
+import de.minestar.minestarlibrary.protocol.packets.DataOKPacket;
+import de.minestar.minestarlibrary.protocol.packets.DataSendPacket;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeDenyPacket;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeOKPacket;
 import de.minestar.minestarlibrary.utils.PlayerUtils;
 
 public class DataMessageListener implements PluginMessageListener {

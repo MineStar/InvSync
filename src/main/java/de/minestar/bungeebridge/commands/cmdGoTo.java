@@ -27,8 +27,8 @@ import org.bukkit.entity.Player;
 import de.minestar.bungeebridge.core.BungeeBridgeCore;
 import de.minestar.bungeebridge.core.RequestThread;
 import de.minestar.bungeebridge.data.DataPacketHandler;
-import de.minestar.bungeebridge.protocol.packets.ServerchangeRequestPacket;
 import de.minestar.minestarlibrary.commands.AbstractExtendedCommand;
+import de.minestar.minestarlibrary.protocol.packets.ServerchangeRequestPacket;
 import de.minestar.minestarlibrary.utils.PlayerUtils;
 
 public class cmdGoTo extends AbstractExtendedCommand {

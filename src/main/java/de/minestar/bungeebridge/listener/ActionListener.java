@@ -30,8 +30,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import de.minestar.bungeebridge.core.BungeeBridgeCore;
 import de.minestar.bungeebridge.core.RequestThread;
 import de.minestar.bungeebridge.data.DataPacketHandler;
-import de.minestar.bungeebridge.protocol.packets.ChatDeathPacket;
-import de.minestar.bungeebridge.protocol.packets.DataRequestPacket;
+import de.minestar.minestarlibrary.protocol.packets.ChatDeathPacket;
+import de.minestar.minestarlibrary.protocol.packets.DataRequestPacket;
 
 public class ActionListener implements Listener {
 
