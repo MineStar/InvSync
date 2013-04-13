@@ -11,6 +11,9 @@ import de.minestar.bungeebridge.data.DataHandler;
 import de.minestar.bungeebridge.data.DataPacketHandler;
 import de.minestar.bungeebridge.listener.ActionListener;
 import de.minestar.bungeebridge.listener.DataMessageListener;
+import de.minestar.bungeebridge.listener.StatisticListener;
+import de.minestar.bungeebridge.manager.DatabaseManager;
+import de.minestar.bungeebridge.manager.StatisticManager;
 import de.minestar.minestarlibrary.AbstractCore;
 import de.minestar.minestarlibrary.commands.CommandList;
 
@@ -25,8 +28,15 @@ public class BungeeBridgeCore extends AbstractCore {
 
     private ActionListener listener;
 
+    // PACKETHANDLING
     private DataMessageListener dataMessageListener;
     private DataPacketHandler dataPacketHandler;
+
+    // MANAGER
+    private StatisticManager statisticManager;
+    private DatabaseManager databaseManager;
+
+    private StatisticListener blockListener;
 
     public BungeeBridgeCore() {
         super(NAME);
@@ -83,6 +93,11 @@ public class BungeeBridgeCore extends AbstractCore {
         this.loadConfig();
         new DataHandler();
         this.dataPacketHandler = new DataPacketHandler(this, "MS_InvSync");
+
+        this.databaseManager = new DatabaseManager(NAME, new File(getDataFolder(), "sqlconfig.yml"));
+        this.statisticManager = new StatisticManager(this.databaseManager);
+        this.databaseManager.initManager(this.statisticManager);
+
         return super.createManager();
     }
 
@@ -90,14 +105,25 @@ public class BungeeBridgeCore extends AbstractCore {
     protected boolean createListener() {
         this.listener = new ActionListener(this.dataPacketHandler);
         this.dataMessageListener = new DataMessageListener(this.dataPacketHandler);
+        this.blockListener = new StatisticListener(this.statisticManager);
         return super.createListener();
     }
 
     @Override
     protected boolean registerEvents(PluginManager pm) {
+        pm.registerEvents(this.blockListener, this);
         pm.registerEvents(this.listener, this);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, this.dataPacketHandler.getChannel());
         Bukkit.getMessenger().registerIncomingPluginChannel(this, this.dataPacketHandler.getChannel(), this.dataMessageListener);
+
         return super.registerEvents(pm);
+    }
+
+    public static StatisticManager getStatisticManager() {
+        return INSTANCE.statisticManager;
+    }
+
+    public static DatabaseManager getDatabaseManager() {
+        return INSTANCE.databaseManager;
     }
 }

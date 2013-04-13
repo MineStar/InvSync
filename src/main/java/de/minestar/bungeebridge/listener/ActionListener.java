@@ -40,9 +40,9 @@ public class ActionListener implements Listener {
     public static ActionListener INSTANCE;
     private DataPacketHandler dataPacketHandler;
 
-    public ActionListener(DataPacketHandler inventoryPacketHandler) {
+    public ActionListener(DataPacketHandler dataPacketHandler) {
         ActionListener.INSTANCE = this;
-        this.dataPacketHandler = inventoryPacketHandler;
+        this.dataPacketHandler = dataPacketHandler;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

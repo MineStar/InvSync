@@ -97,7 +97,7 @@ public class DataMessageListener implements PluginMessageListener {
                 // create data
                 NBTTagCompound tagCompound = DataHandler.INSTANCE.getDataCompound(((CraftPlayer) player).getHandle());
 
-                // send packet
+                // send DataSendPacket
                 DataSendPacket dataPacket = new DataSendPacket(packet.getPlayerName(), packet.getServerName(), CompressedStreamTools.writeMapToByteArray(tagCompound));
                 this.dataPacketHandler.send(dataPacket, player, this.dataPacketHandler.getChannel());
             }
