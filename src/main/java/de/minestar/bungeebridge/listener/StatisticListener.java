@@ -38,34 +38,38 @@ public class StatisticListener implements Listener {
         this.statisticManager = sManager;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.isCancelled())
-            return;
         String playerName = event.getPlayer().getName();
-        Statistic thisStatistic = statisticManager.getPlayersStatistic(playerName);
+        Statistic thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
+        if (thisStatistic == null) {
+            this.statisticManager.createSingleStatistics(playerName);
+            this.statisticManager.loadSingleWarnings(playerName);
+            thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
+        }
         thisStatistic.incrementBreak();
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.isCancelled())
-            return;
         String playerName = event.getPlayer().getName();
-        Statistic stat = statisticManager.getPlayersStatistic(playerName);
-        if (stat != null)
-            stat.incrementPlace();
+        Statistic thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
+        if (thisStatistic == null) {
+            this.statisticManager.createSingleStatistics(playerName);
+            this.statisticManager.loadSingleWarnings(playerName);
+            thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
+        }
+        thisStatistic.incrementPlace();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         // load statistics
         if (!this.statisticManager.hasPlayer(event.getPlayer().getName())) {
-            System.out.println("loading statistics: " + event.getPlayer().getName());
-            this.statisticManager.loadSingleStatistics(event.getPlayer().getName());
+            this.statisticManager.createSingleStatistics(event.getPlayer().getName());
             this.statisticManager.loadSingleWarnings(event.getPlayer().getName());
         } else {
-            System.out.println("Player already has statistics: " + event.getPlayer().getName());
+            System.out.println("Player existed: " + event.getPlayer().getName());
         }
     }
 

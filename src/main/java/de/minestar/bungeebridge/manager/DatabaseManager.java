@@ -63,7 +63,7 @@ public class DatabaseManager extends AbstractMySQLHandler {
 
         selectSingleStatistic = con.prepareStatement("SELECT minecraft_nick, totalBreak, totalPlaced FROM mc_pay WHERE minecraft_nick = ?");
 
-        saveSingleStatistic = con.prepareStatement("UPDATE mc_pay SET totalPlaced = ?, totalBreak = ? WHERE minecraft_nick = ?");
+        saveSingleStatistic = con.prepareStatement("UPDATE mc_pay SET totalPlaced = totalPlaced + ?, totalBreak = totalBreak + ? WHERE minecraft_nick = ?");
     }
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -129,7 +129,7 @@ public class DatabaseManager extends AbstractMySQLHandler {
         }
     }
 
-    public void saveSingleStatistic(String playerName, int totalPlaced, int totalBreak) {
+    public void updateSingleStatistic(String playerName, int totalPlaced, int totalBreak) {
         try {
             saveSingleStatistic.setInt(1, totalPlaced);
             saveSingleStatistic.setInt(2, totalBreak);

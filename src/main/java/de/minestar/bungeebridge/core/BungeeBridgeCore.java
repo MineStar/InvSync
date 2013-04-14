@@ -119,6 +119,12 @@ public class BungeeBridgeCore extends AbstractCore {
         return super.registerEvents(pm);
     }
 
+    @Override
+    protected boolean commonDisable() {
+        this.statisticManager.saveAllStatistics();
+        return super.commonDisable();
+    }
+
     public static StatisticManager getStatisticManager() {
         return INSTANCE.statisticManager;
     }

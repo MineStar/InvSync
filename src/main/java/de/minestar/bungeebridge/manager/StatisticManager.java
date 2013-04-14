@@ -43,20 +43,11 @@ public class StatisticManager implements Runnable {
     }
 
     public Statistic getPlayersStatistic(String playerName) {
-        playerName = playerName.toLowerCase();
-        Statistic thisStatistic = statistics.get(playerName);
-        if (thisStatistic == null) {
-            thisStatistic = new Statistic(0, 0);
-            this.statistics.put(playerName, thisStatistic);
-        }
-        return thisStatistic;
+        return statistics.get(playerName);
     }
 
-    public void loadSingleStatistics(String playerName) {
-        Statistic stats = databaseManager.loadSingleStatistic(playerName);
-        if (stats != null) {
-            statistics.put(playerName, stats);
-        }
+    public void createSingleStatistics(String playerName) {
+        statistics.put(playerName, new Statistic(0, 0));
     }
 
     public void loadSingleWarnings(String playerName) {
@@ -68,7 +59,8 @@ public class StatisticManager implements Runnable {
             Statistic stats = entry.getValue();
             if (stats != null) {
                 if (stats.hasChanged()) {
-                    databaseManager.saveSingleStatistic(entry.getKey().toLowerCase(), stats.getTotalPlaced(), stats.getTotalBreak());
+                    databaseManager.updateSingleStatistic(entry.getKey(), stats.getTotalPlaced(), stats.getTotalBreak());
+                    stats.update(0, 0);
                     stats.setHasChanged(false);
                 }
             }
@@ -77,13 +69,13 @@ public class StatisticManager implements Runnable {
     }
 
     public void saveStatistic(String playerName) {
-        Statistic stats = statistics.get(playerName);
+        Statistic stats = this.getPlayersStatistic(playerName);
         if (stats != null) {
             if (stats.hasChanged()) {
-                databaseManager.saveSingleStatistic(playerName.toLowerCase(), stats.getTotalPlaced(), stats.getTotalBreak());
+                databaseManager.updateSingleStatistic(playerName, stats.getTotalPlaced(), stats.getTotalBreak());
+                stats.update(0, 0);
                 stats.setHasChanged(false);
             }
-            statistics.remove(playerName);
         }
     }
 
@@ -97,19 +89,16 @@ public class StatisticManager implements Runnable {
     }
 
     public void initPlayerStatistic(String playerName) {
-        playerName = playerName.toLowerCase();
         if (!this.statistics.containsKey(playerName)) {
-            this.statistics.put(playerName.toLowerCase(), new Statistic(0, 0));
+            this.statistics.put(playerName, new Statistic(0, 0));
         }
     }
 
     public PlayerWarnings getWarnings(String playerName) {
-        playerName = playerName.toLowerCase();
         return warnings.get(playerName);
     }
 
     public void addWarning(String playerName, MCWarning warning) {
-        playerName = playerName.toLowerCase();
         PlayerWarnings thisPlayer = warnings.get(playerName);
         if (thisPlayer == null) {
             thisPlayer = new PlayerWarnings();
@@ -131,7 +120,6 @@ public class StatisticManager implements Runnable {
 
     public void printStatistics(Player player) {
         Statistic stats = this.getPlayersStatistic(player.getName());
-
         ChatUtils.writeMessage(player, "");
         if (stats == null)
             ChatUtils.writeColoredMessage(player, ChatColor.RED, "Du hast keine Statistiken!");
@@ -146,7 +134,7 @@ public class StatisticManager implements Runnable {
         for (Entry<String, Statistic> entry : statistics.entrySet()) {
             Statistic stats = entry.getValue();
             if (stats.hasChanged()) {
-                this.databaseManager.saveSingleStatistic(entry.getKey().toLowerCase(), stats.getTotalPlaced(), stats.getTotalBreak());
+                this.databaseManager.updateSingleStatistic(entry.getKey(), stats.getTotalPlaced(), stats.getTotalBreak());
                 stats.setHasChanged(false);
             }
         }
