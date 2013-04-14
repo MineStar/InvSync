@@ -25,6 +25,7 @@ public class BungeeBridgeCore extends AbstractCore {
     public static boolean SYNC_CHAT = true;
     public static boolean SYNC_DEATH = true;
     public static boolean SYNC_DATA = true;
+    public static boolean SYNC_STATS = true;
 
     private ActionListener listener;
 
@@ -67,6 +68,7 @@ public class BungeeBridgeCore extends AbstractCore {
             BungeeBridgeCore.SYNC_CHAT = config.getBoolean("sync.chat", BungeeBridgeCore.SYNC_CHAT);
             BungeeBridgeCore.SYNC_DEATH = config.getBoolean("sync.death", BungeeBridgeCore.SYNC_DEATH);
             BungeeBridgeCore.SYNC_DATA = config.getBoolean("sync.data", BungeeBridgeCore.SYNC_DATA);
+            BungeeBridgeCore.SYNC_STATS = config.getBoolean("sync.stats", BungeeBridgeCore.SYNC_STATS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +84,7 @@ public class BungeeBridgeCore extends AbstractCore {
             config.set("sync.chat", BungeeBridgeCore.SYNC_CHAT);
             config.set("sync.death", BungeeBridgeCore.SYNC_DEATH);
             config.set("sync.data", BungeeBridgeCore.SYNC_DATA);
+            config.set("sync.stats", BungeeBridgeCore.SYNC_STATS);
             config.save(file);
         } catch (Exception e) {
             e.printStackTrace();

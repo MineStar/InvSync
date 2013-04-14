@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import de.minestar.bungeebridge.core.BungeeBridgeCore;
 import de.minestar.bungeebridge.manager.StatisticManager;
 import de.minestar.bungeebridge.statistics.Statistic;
 
@@ -40,6 +41,10 @@ public class StatisticListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (!BungeeBridgeCore.SYNC_STATS) {
+            return;
+        }
+
         String playerName = event.getPlayer().getName();
         Statistic thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
         if (thisStatistic == null) {
@@ -52,6 +57,10 @@ public class StatisticListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (!BungeeBridgeCore.SYNC_STATS) {
+            return;
+        }
+
         String playerName = event.getPlayer().getName();
         Statistic thisStatistic = this.statisticManager.getPlayersStatistic(playerName);
         if (thisStatistic == null) {
@@ -68,24 +77,24 @@ public class StatisticListener implements Listener {
         if (!this.statisticManager.hasPlayer(event.getPlayer().getName())) {
             this.statisticManager.createSingleStatistics(event.getPlayer().getName());
             this.statisticManager.loadSingleWarnings(event.getPlayer().getName());
-        } else {
-            System.out.println("Player existed: " + event.getPlayer().getName());
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        // update statistics
-        System.out.println("saving statistics: " + event.getPlayer().getName());
-        this.statisticManager.saveStatistic(event.getPlayer().getName());
+        if (BungeeBridgeCore.SYNC_STATS) {
+            // update statistics
+            this.statisticManager.saveStatistic(event.getPlayer().getName());
+        }
         this.statisticManager.removePlayer(event.getPlayer().getName());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerKick(PlayerKickEvent event) {
-        // update statistics
-        System.out.println("saving statistics: " + event.getPlayer().getName());
-        this.statisticManager.saveStatistic(event.getPlayer().getName());
+        if (BungeeBridgeCore.SYNC_STATS) {
+            // update statistics
+            this.statisticManager.saveStatistic(event.getPlayer().getName());
+        }
         this.statisticManager.removePlayer(event.getPlayer().getName());
     }
 
