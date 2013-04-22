@@ -51,6 +51,10 @@ public class DataMessageListener implements PluginMessageListener {
                     this.handleDataSend(player, (DataSendPacket) packet);
                     break;
                 }
+                case FREESLOTS_ANSWER : {
+                    // TODO: HANDLE FREESLOTS
+                    break;
+                }
                 default : {
                     break;
                 }

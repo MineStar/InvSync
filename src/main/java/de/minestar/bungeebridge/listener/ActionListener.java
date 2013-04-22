@@ -65,6 +65,9 @@ public class ActionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
+
+        event.getPlayer().sendPluginMessage(BungeeBridgeCore.INSTANCE, "ftb-test", new byte[512]);
+
         if (!BungeeBridgeCore.SYNC_CHAT) {
             return;
         }

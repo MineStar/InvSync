@@ -118,7 +118,6 @@ public class BungeeBridgeCore extends AbstractCore {
         pm.registerEvents(this.listener, this);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, this.dataPacketHandler.getChannel());
         Bukkit.getMessenger().registerIncomingPluginChannel(this, this.dataPacketHandler.getChannel(), this.dataMessageListener);
-
         return super.registerEvents(pm);
     }
 
